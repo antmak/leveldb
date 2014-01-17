@@ -9,7 +9,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#if !defined(COMPILER_MSVC)
 #include <unistd.h>
+#endif
 
 const char* phase = "";
 static char dbname[200];
