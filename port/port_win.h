@@ -33,6 +33,9 @@
 
 #define snprintf _snprintf
 
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+
 #include <windows.h>
 // Undo various #define in windows headers that interfere with the code
 #ifdef min

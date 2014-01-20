@@ -32,9 +32,9 @@ if(WIN32 AND MSVC)
   add_definitions(-DWINVER=0x0501 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS)
   add_definitions(/EHsc)
 
-  set(PORT_SRCS port/port_win.cc util/env_win.cc)
-  set(PORT_HDRS port/port_win.h port/win/stdint.h)
-  include_directories(port/win)
+  set(PORT_SRCS port/port_win.cc util/env_win.cc util/win_logger.cc)
+  set(PORT_HDRS port/port_win.h port/win/stdint.h util/win_logger.h)
+  include_directories(port/win) #workaround for stdint.h
 
 #  set(CAPI_SRC db/c.cc)
 #  set(CAPI_HDRS include/leveldb/c.h)
@@ -155,7 +155,7 @@ set(HDRS
   util/logging.h
   util/mutexlock.h
   util/random.h
-  ${PORT_SRCS}
+  ${PORT_HDRS}
   ${CAPI_HDRS}
   )
 
