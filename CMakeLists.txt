@@ -201,8 +201,10 @@ macro(leveldb_tests)
 endmacro()
 
 leveldb_tests(
-  db/db_bench.cc
   util/arena_test.cc
+  db/autocompact_test.cc
+  util/bloom_test.cc
+  ${CAPI_TEST}
   util/cache_test.cc
   util/coding_test.cc
   db/corruption_test.cc
@@ -210,13 +212,18 @@ leveldb_tests(
   db/db_test.cc
   db/dbformat_test.cc
   util/env_test.cc
+  db/filename_test.cc
+  table/filter_block_test.cc
+  issues/issue178_test.cc
+  issues/issue200_test.cc
   db/log_test.cc
-  table/table_test.cc
+  #memenv_test
   db/skiplist_test.cc
+  table/table_test.cc
   db/version_edit_test.cc
   db/version_set_test.cc
   db/write_batch_test.cc
-  ${CAPI_TEST}
+  db/db_bench.cc
 )
 
 # TODO: memenv_test
