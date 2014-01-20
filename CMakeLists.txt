@@ -33,7 +33,7 @@ if(WIN32 AND MSVC)
   add_definitions(/EHsc)
 
   set(PORT_SRCS port/port_win.cc util/env_win.cc)
-  set(PORT_HDRS port/port_win.h port/win/stdint.h port/win/unistd.h)
+  set(PORT_HDRS port/port_win.h port/win/stdint.h)
   include_directories(port/win)
 
 #  set(CAPI_SRC db/c.cc)
