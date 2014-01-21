@@ -85,6 +85,7 @@ set(SRCS
   db/version_edit.cc
   db/version_set.cc
   db/write_batch.cc
+  helpers/memenv/memenv.cc
   table/block_builder.cc
   table/block.cc
   table/filter_block.cc
@@ -221,13 +222,13 @@ leveldb_tests(
   issues/issue178_test.cc
   issues/issue200_test.cc
   db/log_test.cc
-  #memenv_test
   db/skiplist_test.cc
   table/table_test.cc
   db/version_edit_test.cc
   db/version_set_test.cc
   db/write_batch_test.cc
   db/db_bench.cc
+  helpers/memenv/memenv_test.cc
 )
 
 # TODO: memenv_test
