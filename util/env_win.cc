@@ -32,7 +32,7 @@ static Status IOError(const std::string& context, DWORD err = (DWORD)-1) {
   FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
       NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
       (LPSTR)&err_msg, 0, NULL);
-    if (!err_msg) 
+    if (!err_msg)
         return Status::IOError(context);
     s = Status::IOError(context, err_msg);
     LocalFree(err_msg);
@@ -55,11 +55,10 @@ public:
     BOOL ok = ReadFile(file_, (void*)scratch, n2, &r, NULL);
     *result = Slice(scratch, r);
     if (!ok) {
-        // We leave status as ok if we hit the end of the file
-        if (GetLastError() != ERROR_HANDLE_EOF) {
-            return IOError(fname_);
-        }
+        return IOError(fname_);
     }
+    // EOF is (ok==true && r==0) in windows synchronous file.
+    // We leave status as ok if we hit the end of the file
     return Status::OK();
   }
 
@@ -95,7 +94,7 @@ class WinRandomAccessFile: public RandomAccessFile {
   }
 };
 
-class WindowsWritableFile : public WritableFile {
+class BufferedWinWritableFile : public WritableFile {
   static const size_t kBufferSize = 65536;
   std::string fname_;
   HANDLE file_;
@@ -103,8 +102,8 @@ class WindowsWritableFile : public WritableFile {
   BYTE buffer_[kBufferSize];
 
 public:
-  WindowsWritableFile(const std::string& fname, HANDLE file) : fname_(fname), file_(file), pos_(0) {}
-  virtual ~WindowsWritableFile() { CloseHandle(file_); }
+  BufferedWinWritableFile(const std::string& fname, HANDLE file) : fname_(fname), file_(file), pos_(0) {}
+  virtual ~BufferedWinWritableFile() { CloseHandle(file_); }
 
   virtual Status Append(const Slice& data) {
     size_t totalBytesWritten = 0;
@@ -319,7 +318,14 @@ class WinEnv : public Env {
     if (file_name == NULL) {
       return Status::InvalidArgument("Invalid file name");
     }
-    HANDLE h = CreateFileW(file_name, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+    HANDLE h = CreateFileW(
+      file_name,
+      GENERIC_READ,
+      FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+      0,
+      OPEN_EXISTING,
+      FILE_FLAG_SEQUENTIAL_SCAN,
+      0);
     free((void*)file_name);
     if (h == INVALID_HANDLE_VALUE) {
       return IOError(fname);
@@ -335,7 +341,14 @@ class WinEnv : public Env {
     if (file_name == NULL) {
       return Status::InvalidArgument("Invalid file name");
     }
-    HANDLE h = CreateFileW(file_name, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_FLAG_RANDOM_ACCESS, NULL);
+    HANDLE h = CreateFileW(
+      file_name,
+      GENERIC_READ,
+      FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+      0,
+      OPEN_EXISTING,
+      FILE_FLAG_RANDOM_ACCESS,
+      0);
     free((void*)file_name);
     if (h == INVALID_HANDLE_VALUE) {
       return IOError(fname);
@@ -350,12 +363,19 @@ class WinEnv : public Env {
     WCHAR *file_name = ToWcharPermissive(fname.c_str());
     if (file_name == NULL)
       return Status::InvalidArgument("Invalid file name");
-    HANDLE h = CreateFileW(file_name, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    HANDLE h = CreateFileW(
+      file_name,
+      GENERIC_READ | GENERIC_WRITE,
+      FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+      0,
+      CREATE_ALWAYS,
+      FILE_ATTRIBUTE_NORMAL,
+      0);
     free((void*)file_name);
     if (h == INVALID_HANDLE_VALUE) {
       return IOError(fname);
     }
-    *result = new WindowsWritableFile(fname, h);
+    *result = new BufferedWinWritableFile(fname, h);
     return Status::OK();
   }
 
