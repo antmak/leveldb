@@ -306,7 +306,6 @@ class Repairer {
     if (!iter->status().ok()) {
       status = iter->status();
     }
-    table_cache_->Evict(t.meta.number);
     delete iter;
     Log(options_.info_log, "Table #%llu: %d entries %s",
         (unsigned long long) t.meta.number,
@@ -340,7 +339,6 @@ class Repairer {
       builder->Add(iter->key(), iter->value());
       counter++;
     }
-    table_cache_->Evict(t.meta.number);
     delete iter;
 
     ArchiveFile(src);

@@ -319,7 +319,7 @@ class WinEnv : public Env {
     if (file_name == NULL) {
       return Status::InvalidArgument("Invalid file name");
     }
-    HANDLE h = CreateFileW(file_name, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+    HANDLE h = CreateFileW(file_name, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL);
     free((void*)file_name);
     if (h == INVALID_HANDLE_VALUE) {
       return IOError(fname);
@@ -335,7 +335,7 @@ class WinEnv : public Env {
     if (file_name == NULL) {
       return Status::InvalidArgument("Invalid file name");
     }
-    HANDLE h = CreateFileW(file_name, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_RANDOM_ACCESS, NULL);
+    HANDLE h = CreateFileW(file_name, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_FLAG_RANDOM_ACCESS, NULL);
     free((void*)file_name);
     if (h == INVALID_HANDLE_VALUE) {
       return IOError(fname);
@@ -350,7 +350,7 @@ class WinEnv : public Env {
     WCHAR *file_name = ToWcharPermissive(fname.c_str());
     if (file_name == NULL)
       return Status::InvalidArgument("Invalid file name");
-    HANDLE h = CreateFileW(file_name, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    HANDLE h = CreateFileW(file_name, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     free((void*)file_name);
     if (h == INVALID_HANDLE_VALUE) {
       return IOError(fname);
