@@ -95,6 +95,55 @@ class WinRandomAccessFile: public RandomAccessFile {
   }
 };
 
+class WindowsWritableFile : public WritableFile {
+  static const size_t kBufferSize = 65536;
+  std::string fname_;
+  HANDLE file_;
+  size_t pos_;
+  BYTE buffer_[kBufferSize];
+
+public:
+  WindowsWritableFile(const std::string& fname, HANDLE file) : fname_(fname), file_(file), pos_(0) {}
+  virtual ~WindowsWritableFile() { CloseHandle(file_); }
+
+  virtual Status Append(const Slice& data) {
+    size_t totalBytesWritten = 0;
+    while(totalBytesWritten < data.size()) {
+      if(pos_ == kBufferSize) Flush();
+      size_t size = std::min(kBufferSize - pos_, data.size() - totalBytesWritten);
+      memcpy(buffer_ + pos_, data.data() + totalBytesWritten, size);
+      pos_ += size;
+      totalBytesWritten += size;
+    }
+    return Status::OK();
+  }
+
+  virtual Status Close() {
+    Status status = Flush();
+    CloseHandle(file_);
+    file_ = INVALID_HANDLE_VALUE;
+    return status;
+  }
+
+  virtual Status Flush() {
+    size_t pos = 0;
+    while(pos < pos_) {
+      DWORD bytesWritten = 0;
+      if(!WriteFile(file_, &buffer_[pos], pos_ - pos, &bytesWritten, 0))
+        return Status::IOError(fname_);
+      pos += bytesWritten;
+    }
+    pos_ = 0;
+    return Status::OK();
+  }
+
+  virtual Status Sync() {
+    Status status = Flush();
+    if(!status.ok()) return status;
+    return FlushFileBuffers(file_) ? Status::OK() : Status::IOError(fname_);
+  }
+};
+
 class WinWritableFile : public WritableFile {
 private:
   std::string name_;
@@ -306,7 +355,7 @@ class WinEnv : public Env {
     if (h == INVALID_HANDLE_VALUE) {
       return IOError(fname);
     }
-    *result = new WinWritableFile(fname, h);
+    *result = new WindowsWritableFile(fname, h);
     return Status::OK();
   }
 
