@@ -33,8 +33,10 @@
 
 #define snprintf _snprintf
 
+#if !defined(ssize_t)
 #include <BaseTsd.h>
 typedef SSIZE_T ssize_t;
+#endif
 
 #include <windows.h>
 // Undo various #define in windows headers that interfere with the code
@@ -49,7 +51,9 @@ typedef SSIZE_T ssize_t;
 #endif
 
 #include <string>
-
+#ifdef SNAPPY
+#include <snappy.h>
+#endif
 #include <stdint.h>
 
 namespace leveldb {

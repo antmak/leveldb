@@ -32,7 +32,7 @@ if(WIN32 AND MSVC)
   add_definitions(-DCOMPILER_MSVC)
 
   add_definitions(-DWINVER=0x0501 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS)
-  add_definitions(/EHsc)
+  add_definitions(-Dssize_t=ptrdiff_t) #workaround for ssize_t
 
   set(PORT_SRCS port/port_win.cc util/env_win.cc util/win_logger.cc)
   set(PORT_HDRS port/port_win.h port/win/stdint.h util/win_logger.h)
@@ -44,7 +44,7 @@ if(WIN32 AND MSVC)
   set(CAPI_HDRS)
   set(CAPI_TEST)
 
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /Oi")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /Oi /EHsc")
   #set(CMAKE_CXX_FLAGS_RELEASE "/O2 /Ob2 /DNDEBUG /MD")
   set(CMAKE_CXX_FLAGS_RELEASE "/Ox /Ob2 /Ot /DNDEBUG /MD")
   set(CMAKE_CXX_FLAGS_DEBUG "/Od /Zi /Ob0 /RTC1 /D_DEBUG /MDd")
@@ -70,6 +70,24 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND CMAKE_COMPILER_IS_GNUCXX)
 else()
   error("Unknown platform")
 endif()
+
+###
+# embedded snappy
+###
+add_definitions(-DSNAPPY)
+include_directories(snappy)
+set(SNAPPY_SRCS
+  snappy/snappy.cc
+  snappy/snappy-sinksource.cc
+  snappy/snappy-stubs-internal.cc
+  )
+set(SNAPPY_HDRS
+  snappy/snappy.h
+  snappy/snappy-internal.h
+  snappy/snappy-sinksource.h
+  snappy/snappy-stubs-internal.h
+  snappy/snappy-stubs-public.h
+  )
 
 set(SRCS
   db/builder.cc
@@ -163,13 +181,13 @@ set(HDRS
   ${CAPI_HDRS}
   )
 
-add_library(leveldb SHARED ${SRCS} ${HDRS})
+add_library(leveldb SHARED ${SRCS} ${HDRS} ${SNAPPY_SRCS} ${SNAPPY_HDRS})
 set_target_properties(leveldb PROPERTIES
   VERSION ${VERSION_STRING}
   SOVERSION ${VERSION_MAJOR}
   )
 
-add_library(leveldb_static STATIC ${SRCS} ${HDRS})
+add_library(leveldb_static STATIC ${SRCS} ${HDRS} ${SNAPPY_SRCS} ${SNAPPY_HDRS})
 
 find_package(Threads)
 target_link_libraries(leveldb ${CMAKE_THREAD_LIBS_INIT} ${LIBS})
@@ -187,8 +205,6 @@ set(TESTHARNESS_HDRS
   util/testutil.h
   util/testharness.h
 )
-
-#include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(leveldb-testharness STATIC ${TESTHARNESS_SRCS})
 
