@@ -172,7 +172,9 @@ find_package(Threads)
 target_link_libraries(leveldb ${CMAKE_THREAD_LIBS_INIT} ${LIBS})
 target_link_libraries(leveldb_static ${CMAKE_THREAD_LIBS_INIT} ${LIBS})
 
+###
 # TESTS
+###
 
 set(TESTHARNESS_SRCS
   util/testutil.cc
@@ -183,12 +185,9 @@ set(TESTHARNESS_HDRS
   util/testharness.h
 )
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
+#include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(leveldb-testharness STATIC ${TESTHARNESS_SRCS})
-
- macro(leveldb_test ${nam})
- endmacro()
 
 macro(leveldb_tests)
   foreach(t ${ARGN})
@@ -198,6 +197,8 @@ macro(leveldb_tests)
       leveldb-testharness
       leveldb_static
       )
+    add_test(NAME ${_tname}
+      COMMAND $<TARGET_FILE:${_tname}>)
   endforeach()
 endmacro()
 
