@@ -4,7 +4,7 @@ PROJECT(leveldb)
 ENABLE_TESTING()
 
 set(VERSION_MAJOR 1)
-set(VERSION_MINOR 14)
+set(VERSION_MINOR 15)
 set(VERRION_PATCH 0)
 set(VERSION_STRING ${VERSION_MAJOR}.${VERSION_MINOR})
 
@@ -13,8 +13,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR} include)
 # Set a default build type for single-configuration
 # CMake generators if no build type is set.
 if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
-  #set(CMAKE_BUILD_TYPE RELEASE)
-  set(CMAKE_BUILD_TYPE DEBUG)
+  set(CMAKE_BUILD_TYPE RELEASE)
+  #set(CMAKE_BUILD_TYPE DEBUG)
 endif()
 
 message("Configuration: ${CMAKE_BUILD_TYPE}")
