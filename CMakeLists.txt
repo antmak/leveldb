@@ -223,6 +223,7 @@ endmacro()
 
 leveldb_tests(
   util/arena_test.cc
+  util/hash_test.cc
   db/autocompact_test.cc
   util/bloom_test.cc
   ${CAPI_TEST}
