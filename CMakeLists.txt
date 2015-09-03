@@ -30,6 +30,7 @@ if(WIN32 AND MSVC)
   add_definitions(-DOS_WIN)
   add_definitions(-DLEVELDB_PLATFORM_WINDOWS)
   add_definitions(-DCOMPILER_MSVC)
+  add_definitions(-DLEVELDB_ATOMIC_PRESENT)
 
   add_definitions(-DWINVER=0x0501 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS)
   add_definitions(-Dssize_t=ptrdiff_t) #workaround for ssize_t
@@ -38,8 +39,6 @@ if(WIN32 AND MSVC)
   set(PORT_HDRS port/port_win.h port/win/stdint.h util/win_logger.h)
   include_directories(port/win) #workaround for stdint.h
 
-#  set(CAPI_SRC db/c.cc)
-#  set(CAPI_HDRS include/leveldb/c.h)
   set(CAPI_SRC)
   set(CAPI_HDRS)
   set(CAPI_TEST)
@@ -54,6 +53,8 @@ if(WIN32 AND MSVC)
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND CMAKE_COMPILER_IS_GNUCXX)
   add_definitions(-DOS_LINUX)
   add_definitions(-DLEVELDB_PLATFORM_POSIX)
+  add_definitions(-DLEVELDB_ATOMIC_PRESENT)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
   add_definitions(-fno-builtin-memcmp)
 

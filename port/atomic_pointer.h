@@ -124,7 +124,7 @@ class AtomicPointer {
   }
 };
 
-// AtomicPointer based on <cstdatomic>
+// AtomicPointer based on <atomic>
 #elif defined(LEVELDB_ATOMIC_PRESENT)
 class AtomicPointer {
  private:
